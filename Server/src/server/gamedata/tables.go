@@ -1,4 +1,4 @@
-package gamedata
+//package gamedata
 func LoadTables()  {
-    TestTableinit()
+    //TestTableinit()
 }

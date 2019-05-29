@@ -1,10 +1,10 @@
 package main
-import (
-	"fmt"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+//import (
+//	"fmt"
+	//"github.com/jinzhu/gorm"
+	//_ "github.com/jinzhu/gorm/dialects/mysql"
 
-)
+//)
 
 func main1() {
 
@@ -43,6 +43,7 @@ type Card struct {
 
 
 func Test() {
+	/*
 	db, err := gorm.Open("mysql", "mike:xxxxx@tcp(localhost:3306)/gorm?parseTime=true")
 	defer db.Close()
 	if err != nil {
@@ -54,7 +55,8 @@ func Test() {
 	db.AutoMigrate(&PlayerBaseInfo{})
 	db.AutoMigrate(&Card{})
 	db.AutoMigrate(&PlayersCards{})
-
+	*/
+	/*
 	playersCard1 := PlayersCards{PlayerID:1,CardID:1,Amount:20}
 	err =  db.Save(&playersCard1).Error
 	if nil != err {
@@ -85,7 +87,7 @@ func Test() {
 		fmt.Println("create 3 error:",err)
 	}
 
-
+*/
 	//err2 := db.Create(&Player{
 	//	Name: "Mike",
 	//}).Error
@@ -93,12 +95,13 @@ func Test() {
 	//	fmt.Println("already exist:",err2)
 	//}
 
-
+/*
 	//query player Mike
 	var player Player
 	err = db.Where("Name = ?", "Mike"). Limit(1).Find(&player).Error
 	if nil != err {
 		fmt.Println(err)
 	}
+	*/
 }
 

@@ -13,11 +13,13 @@ var (
 )
 
 func  TestTableinit() {
+    /*
 	rf := readRf(TestTable{})
 	for i := 0; i < rf.NumRecord(); i++ {
 		r := rf.Record(i).(*TestTable)
         TestTableData[r.ID] = *r
     }
+    */
 }
 
 func GetDataByID(id int) (TestTable) {
