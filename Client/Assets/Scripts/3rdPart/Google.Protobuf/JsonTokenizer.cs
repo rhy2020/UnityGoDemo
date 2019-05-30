@@ -77,7 +77,7 @@ namespace Google.Protobuf
         /// Returns the depth of the stack, purely in objects (not collections).
         /// Informally, this is the number of remaining unclosed '{' characters we have.
         /// </summary>
-        internal int ObjectDepth;
+        internal int ObjectDepth { get; private set; }
 
         // TODO: Why do we allow a different token to be pushed back? It might be better to always remember the previous
         // token returned, and allow a parameterless Rewind() method (which could only be called once, just like the current PushBack).
@@ -136,6 +136,34 @@ namespace Google.Protobuf
         /// <exception cref="InvalidOperationException">This method is called after an EndDocument token has been returned</exception>
         /// <exception cref="InvalidJsonException">The input text does not comply with RFC 7159</exception>
         protected abstract JsonToken NextImpl();
+
+        /// <summary>
+        /// Skips the value we're about to read. This must only be called immediately after reading a property name.
+        /// If the value is an object or an array, the complete object/array is skipped.
+        /// </summary>
+        internal void SkipValue()
+        {
+            // We'll assume that Next() makes sure that the end objects and end arrays are all valid.
+            // All we care about is the total nesting depth we need to close.
+            int depth = 0;
+
+            // do/while rather than while loop so that we read at least one token.
+            do
+            {
+                var token = Next();
+                switch (token.Type)
+                {
+                    case JsonToken.TokenType.EndArray:
+                    case JsonToken.TokenType.EndObject:
+                        depth--;
+                        break;
+                    case JsonToken.TokenType.StartArray:
+                    case JsonToken.TokenType.StartObject:
+                        depth++;
+                        break;
+                }
+            } while (depth != 0);
+        }
 
         /// <summary>
         /// Tokenizer which first exhausts a list of tokens, then consults another tokenizer.
@@ -217,7 +245,7 @@ namespace Google.Protobuf
                             state = State.ObjectAfterColon;
                             break;
                         case ',':
-                            ValidateState(State.ObjectAfterProperty | State.ArrayAfterValue, "Invalid state to read a colon: ");
+                            ValidateState(State.ObjectAfterProperty | State.ArrayAfterValue, "Invalid state to read a comma: ");
                             state = state == State.ObjectAfterProperty ? State.ObjectAfterComma : State.ArrayAfterComma;
                             break;
                         case '"':
@@ -586,7 +614,7 @@ namespace Google.Protobuf
             /// where ^ represents the current position within the text stream. The examples all use string values,
             /// but could be any value, including nested objects/arrays.
             /// The complete state of the tokenizer also includes a stack to indicate the contexts (arrays/objects).
-            /// Any additional notional state of "AfterValue" indicates that a value has been completed, at which 
+            /// Any additional notional state of "AfterValue" indicates that a value has been completed, at which
             /// point there's an immediate transition to ExpectedEndOfDocument,  ObjectAfterProperty or ArrayAfterValue.
             /// </para>
             /// <para>
@@ -627,7 +655,7 @@ namespace Google.Protobuf
                 /// <summary>
                 /// { "foo" : ^ "bar", "x": "y" }
                 /// Before any property other than the first in an object.
-                /// (Equivalently: after any property in an object) 
+                /// (Equivalently: after any property in an object)
                 /// Next states:
                 /// "AfterValue" (value is simple)
                 /// ObjectStart (value is object)

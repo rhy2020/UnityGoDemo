@@ -42,40 +42,62 @@ namespace Google.Protobuf.Reflection
     {
         private static readonly string[] EmptyNames = new string[0];
         private static readonly GeneratedClrTypeInfo[] EmptyCodeInfo = new GeneratedClrTypeInfo[0];
+        private static readonly Extension[] EmptyExtensions = new Extension[0];
 
         /// <summary>
         /// Irrelevant for file descriptors; the CLR type for the message for message descriptors.
         /// </summary>
-        public Type ClrType;
+        public Type ClrType { get; private set; }
 
         /// <summary>
         /// Irrelevant for file descriptors; the parser for message descriptors.
         /// </summary>
-        public readonly MessageParser Parser;
+        public MessageParser Parser { get; }
 
         /// <summary>
         /// Irrelevant for file descriptors; the CLR property names (in message descriptor field order)
         /// for fields in the message for message descriptors.
         /// </summary>
-        public readonly string[] PropertyNames;
+        public string[] PropertyNames { get; }
+
+        /// <summary>
+        /// The extensions defined within this file/message descriptor
+        /// </summary>
+        public Extension[] Extensions { get; }
 
         /// <summary>
         /// Irrelevant for file descriptors; the CLR property "base" names (in message descriptor oneof order)
         /// for oneofs in the message for message descriptors. It is expected that for a oneof name of "Foo",
         /// there will be a "FooCase" property and a "ClearFoo" method.
         /// </summary>
-        public readonly string[] OneofNames;
+        public string[] OneofNames { get; }
 
         /// <summary>
         /// The reflection information for types within this file/message descriptor. Elements may be null
         /// if there is no corresponding generated type, e.g. for map entry types.
         /// </summary>
-        public readonly GeneratedClrTypeInfo[] NestedTypes;
+        public GeneratedClrTypeInfo[] NestedTypes { get; }
 
         /// <summary>
         /// The CLR types for enums within this file/message descriptor.
         /// </summary>
-        public readonly Type[] NestedEnums;
+        public Type[] NestedEnums { get; }
+
+        /// <summary>
+        /// Creates a GeneratedClrTypeInfo for a message descriptor, with nested types, nested enums, the CLR type, property names and oneof names.
+        /// Each array parameter may be null, to indicate a lack of values.
+        /// The parameter order is designed to make it feasible to format the generated code readably.
+        /// </summary>
+        public GeneratedClrTypeInfo(Type clrType, MessageParser parser, string[] propertyNames, string[] oneofNames, Type[] nestedEnums, Extension[] extensions, GeneratedClrTypeInfo[] nestedTypes)
+        {
+            NestedTypes = nestedTypes ?? EmptyCodeInfo;
+            NestedEnums = nestedEnums ?? ReflectionUtil.EmptyTypes;
+            ClrType = clrType;
+            Extensions = extensions ?? EmptyExtensions;
+            Parser = parser;
+            PropertyNames = propertyNames ?? EmptyNames;
+            OneofNames = oneofNames ?? EmptyNames;
+        }
 
         /// <summary>
         /// Creates a GeneratedClrTypeInfo for a message descriptor, with nested types, nested enums, the CLR type, property names and oneof names.
@@ -83,13 +105,16 @@ namespace Google.Protobuf.Reflection
         /// The parameter order is designed to make it feasible to format the generated code readably.
         /// </summary>
         public GeneratedClrTypeInfo(Type clrType, MessageParser parser, string[] propertyNames, string[] oneofNames, Type[] nestedEnums, GeneratedClrTypeInfo[] nestedTypes)
+            : this(clrType, parser, propertyNames, oneofNames, nestedEnums, null, nestedTypes)
         {
-            NestedTypes = nestedTypes ?? EmptyCodeInfo;
-            NestedEnums = nestedEnums ?? ReflectionUtil.EmptyTypes;
-            ClrType = clrType;
-            Parser = parser;
-            PropertyNames = propertyNames ?? EmptyNames;
-            OneofNames = oneofNames ?? EmptyNames;
+        }
+
+        /// <summary>
+        /// Creates a GeneratedClrTypeInfo for a file descriptor, with only types, enums, and extensions.
+        /// </summary>
+        public GeneratedClrTypeInfo(Type[] nestedEnums, Extension[] extensions, GeneratedClrTypeInfo[] nestedTypes)
+            : this(null, null, null, null, nestedEnums, extensions, nestedTypes)
+        {
         }
 
         /// <summary>

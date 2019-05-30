@@ -30,8 +30,10 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Google.Protobuf.Collections;
 using Google.Protobuf.Compatibility;
 
 namespace Google.Protobuf.Reflection
@@ -85,6 +87,16 @@ namespace Google.Protobuf.Reflection
         /// Gets an accessor for reflective access to the values associated with the oneof
         /// in a particular message.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// In descriptors for generated code, the value returned by this property will always be non-null.
+        /// </para>
+        /// <para>
+        /// In dynamically loaded descriptors, the value returned by this property will current be null;
+        /// if and when dynamic messages are supported, it will return a suitable accessor to work with
+        /// them.
+        /// </para>
+        /// </remarks>
         /// <value>
         /// The accessor used for reflective access.
         /// </value>
@@ -93,14 +105,27 @@ namespace Google.Protobuf.Reflection
         /// <summary>
         /// The (possibly empty) set of custom options for this oneof.
         /// </summary>
-        //public CustomOptions CustomOptions => proto.Options?.CustomOptions ?? CustomOptions.Empty;
-        public CustomOptions CustomOptions
+        //[Obsolete("CustomOptions are obsolete. Use GetOption")]
+        public CustomOptions CustomOptions => new CustomOptions(proto.Options._extensions?.ValuesByNumber);
+
+        /* // uncomment this in the full proto2 support PR
+        /// <summary>
+        /// Gets a single value enum option for this descriptor
+        /// </summary>
+        public T GetOption<T>(Extension<OneofOptions, T> extension)
         {
-            get
-            {
-                return proto.Options == null ? null : proto.Options.CustomOptions ?? CustomOptions.Empty;
-            }
+            var value = proto.Options.GetExtension(extension);
+            return value is IDeepCloneable<T> clonable ? clonable.Clone() : value;
         }
+
+        /// <summary>
+        /// Gets a repeated value enum option for this descriptor
+        /// </summary>
+        public RepeatedField<T> GetOption<T>(RepeatedExtension<OneofOptions, T> extension)
+        {
+            return proto.Options.GetExtension(extension).Clone();
+        }
+        */
 
         internal void CrossLink()
         {
@@ -117,15 +142,21 @@ namespace Google.Protobuf.Reflection
 
         private OneofAccessor CreateAccessor(string clrName)
         {
+            // We won't have a CLR name if this is from a dynamically-loaded FileDescriptor.
+            // TODO: Support dynamic messages.
+            if (clrName == null)
+            {
+                return null;
+            }
             var caseProperty = containingType.ClrType.GetProperty(clrName + "Case");
             if (caseProperty == null)
             {
-                throw new DescriptorValidationException(this, "Property " + clrName + "Case not found in " + containingType.ClrType);
+                throw new DescriptorValidationException(this, $"Property {clrName}Case not found in {containingType.ClrType}");
             }
             var clearMethod = containingType.ClrType.GetMethod("Clear" + clrName);
             if (clearMethod == null)
             {
-                throw new DescriptorValidationException(this, "Method Clear" + clrName + " not found in " + containingType.ClrType);
+                throw new DescriptorValidationException(this, $"Method Clear{clrName} not found in {containingType.ClrType}");
             }
 
             return new OneofAccessor(caseProperty, clearMethod, this);

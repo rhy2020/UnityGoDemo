@@ -47,7 +47,11 @@ namespace Google.Protobuf.Collections
     /// </remarks>
     /// <typeparam name="T">The element type of the repeated field.</typeparam>
     public sealed class RepeatedField<T> : IList<T>, IList, IDeepCloneable<RepeatedField<T>>, IEquatable<RepeatedField<T>>
+#if !NET35
+        , IReadOnlyList<T>
+#endif
     {
+        private static readonly EqualityComparer<T> EqualityComparer = ProtobufEqualityComparers.GetEqualityComparer<T>();
         private static readonly T[] EmptyArray = new T[0];
         private const int MinArraySize = 8;
 
@@ -204,6 +208,10 @@ namespace Google.Protobuf.Collections
                 {
                     output.WriteTag(tag);
                     writer(output, array[i]);
+                    if (codec.EndTag != 0)
+                    {
+                        output.WriteTag(codec.EndTag);
+                    }
                 }
             }
         }
@@ -226,7 +234,7 @@ namespace Google.Protobuf.Collections
         /// <param name="item">The item to add.</param>
         public void Add(T item)
         {
-            ProtoPreconditions.CheckNotNullUnconstrained(item, "item");
+            ProtoPreconditions.CheckNotNullUnconstrained(item, nameof(item));
             EnsureSize(count + 1);
             array[count++] = item;
         }
@@ -281,24 +289,12 @@ namespace Google.Protobuf.Collections
         /// <summary>
         /// Gets the number of elements contained in the collection.
         /// </summary>
-        public int Count
-        {
-            get
-            {
-                return count;
-            }
-        }
+        public int Count => count;
 
         /// <summary>
         /// Gets a value indicating whether the collection is read-only.
         /// </summary>
-        public bool IsReadOnly
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool IsReadOnly => false;
 
         /// <summary>
         /// Adds all of the specified values into this collection.
@@ -306,7 +302,7 @@ namespace Google.Protobuf.Collections
         /// <param name="values">The values to add to this collection.</param>
         public void AddRange(IEnumerable<T> values)
         {
-            ProtoPreconditions.CheckNotNull(values, "values");
+            ProtoPreconditions.CheckNotNull(values, nameof(values));
 
             // Optimization 1: If the collection we're adding is already a RepeatedField<T>,
             // we know the values are valid.
@@ -339,7 +335,7 @@ namespace Google.Protobuf.Collections
                     {
                         if (item == null)
                         {
-                            throw new ArgumentException("Sequence contained null element", "values");
+                            throw new ArgumentException("Sequence contained null element", nameof(values));
                         }
                     }
                 }
@@ -443,7 +439,7 @@ namespace Google.Protobuf.Collections
             {
                 return false;
             }
-            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+            EqualityComparer<T> comparer = EqualityComparer;
             for (int i = 0; i < count; i++)
             {
                 if (!comparer.Equals(array[i], other.array[i]))
@@ -462,8 +458,8 @@ namespace Google.Protobuf.Collections
         /// <returns>The zero-based index of the item, or -1 if it is not found.</returns>
         public int IndexOf(T item)
         {
-            ProtoPreconditions.CheckNotNullUnconstrained(item, "item");
-            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+            ProtoPreconditions.CheckNotNullUnconstrained(item, nameof(item));
+            EqualityComparer<T> comparer = EqualityComparer;
             for (int i = 0; i < count; i++)
             {
                 if (comparer.Equals(array[i], item))
@@ -481,10 +477,10 @@ namespace Google.Protobuf.Collections
         /// <param name="item">The item to insert.</param>
         public void Insert(int index, T item)
         {
-            ProtoPreconditions.CheckNotNullUnconstrained(item, "item");
+            ProtoPreconditions.CheckNotNullUnconstrained(item, nameof(item));
             if (index < 0 || index > count)
             {
-                throw new ArgumentOutOfRangeException("index");
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
             EnsureSize(count + 1);
             Array.Copy(array, index, array, index + 1, count - index);
@@ -500,7 +496,7 @@ namespace Google.Protobuf.Collections
         {
             if (index < 0 || index >= count)
             {
-                throw new ArgumentOutOfRangeException("index");
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
             Array.Copy(array, index + 1, array, index, count - index - 1);
             count--;
@@ -532,7 +528,7 @@ namespace Google.Protobuf.Collections
             {
                 if (index < 0 || index >= count)
                 {
-                    throw new ArgumentOutOfRangeException("index");
+                    throw new ArgumentOutOfRangeException(nameof(index));
                 }
                 return array[index];
             }
@@ -540,42 +536,24 @@ namespace Google.Protobuf.Collections
             {
                 if (index < 0 || index >= count)
                 {
-                    throw new ArgumentOutOfRangeException("index");
+                    throw new ArgumentOutOfRangeException(nameof(index));
                 }
-                ProtoPreconditions.CheckNotNullUnconstrained(value, "value");
+                ProtoPreconditions.CheckNotNullUnconstrained(value, nameof(value));
                 array[index] = value;
             }
         }
 
         #region Explicit interface implementation for IList and ICollection.
-        bool IList.IsFixedSize
-        {
-            get
-            {
-                return false;
-            }
-        }
+        bool IList.IsFixedSize => false;
 
         void ICollection.CopyTo(Array array, int index)
         {
             Array.Copy(this.array, 0, array, index, count);
         }
 
-        bool ICollection.IsSynchronized
-        {
-            get
-            {
-                return false;
-            }
-        }
+        bool ICollection.IsSynchronized => false;
 
-        object ICollection.SyncRoot
-        {
-            get
-            {
-                return this;
-            }
-        }
+        object ICollection.SyncRoot => this;
 
         object IList.this[int index]
         {

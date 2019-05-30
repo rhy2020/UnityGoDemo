@@ -97,7 +97,7 @@ namespace Google.Protobuf
 
         private CodedOutputStream(Stream output, byte[] buffer, bool leaveOpen)
         {
-            this.output = ProtoPreconditions.CheckNotNull(output, "output");
+            this.output = ProtoPreconditions.CheckNotNull(output, nameof(output));
             this.buffer = buffer;
             this.position = 0;
             this.limit = buffer.Length;
@@ -300,6 +300,15 @@ namespace Google.Protobuf
         public void WriteMessage(IMessage value)
         {
             WriteLength(value.CalculateSize());
+            value.WriteTo(this);
+        }
+
+        /// <summary>
+        /// Writes a group, without a tag, to the stream.
+        /// </summary>
+        /// <param name="value">The value to write</param>
+        public void WriteGroup(IMessage value)
+        {
             value.WriteTo(this);
         }
 
