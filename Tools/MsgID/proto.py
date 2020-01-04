@@ -19,7 +19,7 @@ def loadProto():
                     protos = protos +fileProtos
         elif os.path.isfile(child):  # 如果是文件，则直接判断扩展名
             if os.path.splitext(child)[1] == '.proto':
-                f = open(child, 'r')
+                f = open(child, 'r',encoding= 'utf-8')
                 f_info = f.readlines()
                 f.close()
                 fileProtos = findProtos(f_info)

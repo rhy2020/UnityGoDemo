@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "C:\\Users\\chenyachao\\Desktop\\UnityGoDemo\\Tools\\Proto\\src"
 		}
 	],
 	"settings": {}

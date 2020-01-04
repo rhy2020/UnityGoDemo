@@ -1,14 +1,11 @@
 package internal
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"reflect"
 	"server/game"
 	"server/msg"
 
 	"github.com/name5566/leaf/gate"
-	"github.com/name5566/leaf/log"
 )
 
 func handleMsg(m interface{}, h interface{}) {
@@ -22,34 +19,51 @@ func handleAuth(args []interface{}) {
 	m := args[0].(*msg.Login)
 	a := args[1].(gate.Agent)
 
-	if len(m.Account) < 2 || len(m.Account) > 12 {
-		a.WriteMsg(&msg.LoginFaild{Code: msg.LoginFaild_AccIDInvalid})
+	if accountIsExist(m.PlayerID) {
+		a.WriteMsg(&msg.LoginFaild{RspHead: &msg.RspHead{ErrorId: 1, ErrorString: "玩家id已存在!"}})
+		return
+	}
+	if accountNameIsExist(m.PlayerID, m.Name) {
+		a.WriteMsg(&msg.LoginFaild{RspHead: &msg.RspHead{ErrorId: 2, ErrorString: "玩家名字已存在!"}})
 		return
 	}
 
-	account := getAccountByAccountID(m.Account)
+	a.SetUserData(createAccount(m.PlayerID, m.Name))
 
-	data := []byte(m.Passward)
-	var hash = md5.Sum(data)
-	password := hex.EncodeToString(hash[:])
-	if nil == account {
-		//not having this account,creat account
-		newAccount := creatAccountByAccountIDAndPassword(m.Account, password)
-		if nil != newAccount {
-			game.ChanRPC.Go("CreatePlayer", a, newAccount.PlayerID)
-			game.ChanRPC.Go("UserLogin", a, newAccount.PlayerID)
-		} else {
-			log.Debug("create account error ", m.Account)
-			a.WriteMsg(&msg.LoginFaild{Code: msg.LoginFaild_InnerError})
+	//game.ChanRPC.Go("CreatePlayer", a, m.PlayerID, m.Name)
+	game.ChanRPC.Go("UserLogin", a, m.PlayerID, m.Name)
+
+	a.WriteMsg(&msg.LoginSuccessfull{})
+
+	/*
+		if len(m.Account) < 2 || len(m.Account) > 12 {
+			a.WriteMsg(&msg.LoginFaild{Code: msg.LoginFaild_AccIDInvalid})
+			return
 		}
 
-	} else {
-		// match password
-		if password == account.Password {
-			game.ChanRPC.Go("UserLogin", a, account.PlayerID)
-		} else {
-			a.WriteMsg(&msg.LoginFaild{Code: msg.LoginFaild_AccountOrPasswardNotMatch})
-		}
-	}
+		account := getAccountByAccountID(m.Account)
 
+		data := []byte(m.Name)
+		var hash = md5.Sum(data)
+		password := hex.EncodeToString(hash[:])
+		if nil == account {
+			//not having this account,creat account
+			newAccount := creatAccountByAccountIDAndPassword(m.Account, password)
+			if nil != newAccount {
+				game.ChanRPC.Go("CreatePlayer", a, newAccount.PlayerID)
+				game.ChanRPC.Go("UserLogin", a, newAccount.PlayerID)
+			} else {
+				log.Debug("create account error ", m.Account)
+				a.WriteMsg(&msg.LoginFaild{Code: msg.LoginFaild_InnerError})
+			}
+
+		} else {
+			// match password
+			if password == account.Password {
+				game.ChanRPC.Go("UserLogin", a, account.PlayerID)
+			} else {
+				a.WriteMsg(&msg.LoginFaild{Code: msg.LoginFaild_AccountOrPasswardNotMatch})
+			}
+		}
+	*/
 }

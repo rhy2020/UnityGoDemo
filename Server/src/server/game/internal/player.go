@@ -1,12 +1,13 @@
 package internal
 
 import (
-	"github.com/name5566/leaf/gate"
-	"github.com/name5566/leaf/timer"
-	"github.com/name5566/leaf/go"
 	"server/msg"
-	"github.com/name5566/leaf/log"
 	"time"
+
+	"github.com/name5566/leaf/gate"
+	g "github.com/name5566/leaf/go"
+	"github.com/name5566/leaf/log"
+	"github.com/name5566/leaf/timer"
 	"github.com/name5566/leaf/util"
 )
 
@@ -15,7 +16,7 @@ var (
 )
 
 const (
-	userLogin  = iota
+	userLogin = iota
 	userLogout
 	userGame
 )
@@ -42,7 +43,7 @@ func (player *Player) login(playerID uint) {
 		if err != nil {
 			log.Error("init acc %v data error: %v", playerID, err)
 			playerBaseInfo = nil
-			player.WriteMsg(&msg.LoginFaild{Code: msg.LoginFaild_InnerError})
+			player.WriteMsg(&msg.LoginFaild{RspHead: &msg.RspHead{ErrorId: 3, ErrorString: "创建失败!"}})
 			player.Close()
 			return
 		}

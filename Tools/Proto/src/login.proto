@@ -1,5 +1,5 @@
 syntax = "proto3";
-
+import "common.proto";
 package msg;
 
 message SignUpResponse
@@ -22,19 +22,18 @@ message TocChat
 
 message Login
 {
-	string PlayerID = 1;
+	int32 PlayerID = 1;
 	string Name = 2;
 }
 
 message PlayerBaseInfo
 {
-	uint32 PlayerID = 1;
+	int32 PlayerID = 1;
 	string Name = 2;
 }
 
 message LoginSuccessfull
 {
-	PlayerBaseInfo playerBaseInfo  = 1;
 }
 
 message LoginFaild

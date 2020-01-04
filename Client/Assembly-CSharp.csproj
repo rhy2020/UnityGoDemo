@@ -172,6 +172,7 @@
     <Compile Include="Assets\Scripts\Net\ByteBuffer.cs" />
     <Compile Include="Assets\Scripts\Net\Converter.cs" />
     <Compile Include="Assets\Scripts\Net\NetManager.cs" />
+    <Compile Include="Assets\Scripts\Net\proto\Battle.cs" />
     <Compile Include="Assets\Scripts\Net\proto\Common.cs" />
     <Compile Include="Assets\Scripts\Net\proto\Fight.cs" />
     <Compile Include="Assets\Scripts\Net\proto\Login.cs" />

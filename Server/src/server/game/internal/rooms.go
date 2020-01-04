@@ -22,9 +22,6 @@ func GetRoom(roomID uint) *Room {
 func InitRooms() {
 	for i := 0; i < 10; i++ {
 		CreateRooms(uint(i))
-
 	}
-
 	//test
-
 }

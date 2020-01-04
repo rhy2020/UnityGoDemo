@@ -2,8 +2,9 @@ package internal
 
 import (
 	"fmt"
-	"github.com/name5566/leaf/gate"
 	"server/msg"
+
+	"github.com/name5566/leaf/gate"
 	"github.com/name5566/leaf/log"
 )
 
@@ -29,6 +30,7 @@ func rpcCloseAgent(args []interface{}) {
 func rpcUserLogin(args []interface{}) {
 	agent := args[0].(gate.Agent)
 	playerID := args[1].(uint)
+
 	// network closed
 	if agent.UserData() == nil {
 		return
@@ -36,7 +38,7 @@ func rpcUserLogin(args []interface{}) {
 
 	oldUser := playerID2Player[playerID]
 	if oldUser != nil {
-		m := &msg.LoginFaild{Code: msg.LoginFaild_LoginRepeat}
+		m := &msg.LoginFaild{RspHead: &msg.RspHead{ErrorId: 3, ErrorString: "重复登陆!"}}
 		agent.WriteMsg(m)
 		oldUser.WriteMsg(m)
 		agent.Close()
@@ -59,9 +61,10 @@ func rpcUserLogin(args []interface{}) {
 func rpcCreatePlayer(args []interface{}) {
 	agent := args[0].(gate.Agent)
 	playerID := args[1].(uint)
+
 	err := CreatePlayer(playerID)
 	if nil != err {
-		m := &msg.LoginFaild{Code: msg.LoginFaild_InnerError}
+		m := &msg.LoginFaild{RspHead: &msg.RspHead{ErrorId: 3, ErrorString: "创建失败!"}}
 		agent.WriteMsg(m)
 	}
 
