@@ -8,13 +8,14 @@ public class Main : MonoBehaviour
     {
         InitNet();
         InitManager();
-//        ChatView.OpenView("Prefabs/ChatView/ChatView");
+        //        ChatView.OpenView("Prefabs/ChatView/ChatView");
+        LoginView.OpenView("Prefabs/LoginWindow");
 	}
 
     private void InitNet()
     {
         gameObject.AddComponent<NetManager>();
-        //NetManager.Instance.SendConnect();
+        NetManager.Instance.SendConnect();
     }
 
     private void InitManager()

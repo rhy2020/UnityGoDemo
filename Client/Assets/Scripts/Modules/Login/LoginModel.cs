@@ -6,12 +6,18 @@ public class LoginModel : BaseModel<LoginModel>
 {
     protected override void InitAddTocHandler()
     {
-        AddTocHandler(typeof(SignUpResponse), TocLogin);
-    }
+        AddTocHandler(typeof(LoginSuccessfull), LoginSuccessfull);
+        AddTocHandler(typeof(LoginFaild), LoginFaild);
 
-    private void TocLogin(object data)
+    }
+    private void LoginSuccessfull(object data)
     {
-        SignUpResponse toc = data as SignUpResponse;
-        Debug.Log(toc.Version);
+        LoginSuccessfull loginSuccessfull = data as LoginSuccessfull;
+        
+    }
+    private void LoginFaild(object data)
+    {
+        LoginFaild loginFaild = data as LoginFaild;
+
     }
 }

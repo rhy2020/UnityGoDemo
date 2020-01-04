@@ -1,0 +1,5 @@
+﻿syntax = "proto3";
+import "login.proto";
+import "common.proto";
+
+package msg;

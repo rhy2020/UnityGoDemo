@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package msg;
+
+message RspHead
+{
+	int32 errorId = 1;
+	string errorString =2;
+}
+
+//心跳
+message HeartReq
+{
+
+}
+
+message HeartRsp
+{
+
+}

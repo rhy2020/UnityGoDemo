@@ -1,0 +1,112 @@
+syntax = "proto3";
+import "login.proto";
+import "common.proto";
+
+package msg;
+
+//房间的数据
+message RoomData
+{
+	uint32 roomId = 1; //房间id
+	uint32 memberCount = 2; //房间人数
+	uint32 memberMaxCount = 3; //房间最大人数
+	msg.PlayerBaseInfo roomMaster = 4;//房主
+}
+
+//请求房间
+message RoomListReq
+{
+}
+
+//请求房间列表
+message RoomListRsp
+{
+	repeated msg.RoomData rooms = 1; //房间列表
+}
+
+//请求加入房间
+message JoinRoomReq
+{
+
+}
+
+//请求加入房间
+message JoinRoomRsp
+{
+	msg.RspHead rspHead = 1;
+	repeated msg.PlayerBaseInfo player = 2 ; //玩家列表
+}
+
+//请求离开房间
+message LeaveRoomReq
+{
+
+}
+
+message LeaveRoomRsp 
+{
+	msg.RspHead rspHead = 1;
+}
+
+//玩家进入房间
+message RoomPlayerJoinNtf
+{
+	msg.PlayerBaseInfo player = 1;
+}
+
+//玩家离开房间
+message RoomPlayerLeaveNtf
+{
+	uint32 playerId = 1;
+}
+
+//请求战斗准备
+message RoomBattleReadyReq
+{
+
+}
+
+message RoomBattleReadyRsp
+{
+	msg.RspHead rspHead = 1;
+}
+
+//战斗准备推送
+message RoomBattleReadyNtf
+{
+	uint32 playerId = 1;
+
+}
+
+//战斗取消准备
+message RoomBattleCancleReadyReq
+{
+
+}
+
+message RoomBattleCancleReadyRsp
+{
+	msg.RspHead rspHead = 1;
+}
+
+//取消战斗
+message RoomBattleCancleReadyNtf
+{
+	uint32 playerId = 1;
+}
+
+//战斗准备
+message RoomBattleStartReq
+{
+
+}
+
+message RoomBattleStartRsp
+{
+	msg.RspHead rspHead = 1;
+}
+
+message RoomBattleStartNtf
+{
+	msg.RspHead rspHead = 1;
+}

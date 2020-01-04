@@ -6,6 +6,9 @@ namespace Util
 {
     public class SingletonMonoBehaviour<T> : MonoBehaviour where T: SingletonMonoBehaviour<T>
     {
+
+        static Transform UIRoot;
+
         private static T _instance;
         public static T Instance
         {
@@ -27,7 +30,10 @@ namespace Util
             if (Instance == null)
             {
                 GameObject go = Resources.Load(path) as GameObject;
+                if(UIRoot == null)
+                    UIRoot = GameObject.Find("Canvas").transform;
                 prefGo = GameObject.Instantiate(go);
+                prefGo.transform.SetParent(UIRoot, false);
                 prefGo.AddComponent<T>();
             }
             else

@@ -7,14 +7,16 @@ public class TableUtil
     
     public static int[] LoadInts(string data)
     {
-        int[] decodeData = JsonUtility.FromJson<int[]>(data);
-        return decodeData;
+        //int[] decodeData = JsonUtility.FromJson<int[]>(data);
+        //return decodeData;
+        return null;
     }
 
 
     public static Dictionary<string,int> LoadDictString2Int(string data)
     {
-        Dictionary<string, int> decodeData = JsonUtility.FromJson<Dictionary<string, int>>(data);
-        return decodeData;
+        //Dictionary<string, int> decodeData = JsonUtility.FromJson<Dictionary<string, int>>(data);
+        //return decodeData;
+        return null;
     }
 }
